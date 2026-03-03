@@ -36,7 +36,7 @@ export default function CocktailCard({ cocktail, onFavoriteToggle }: Props) {
       {cocktail.imageUrl ? (
         <div className="aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
           <img
-            src={`http://localhost:3001${cocktail.imageUrl}`}
+            src={cocktail.imageUrl}
             alt={cocktail.name}
             className="w-full h-full object-cover"
           />

@@ -11,7 +11,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // API calls: network-first
 registerRoute(
-  ({ url }) => url.origin === 'http://localhost:3001' && url.pathname.startsWith('/api/'),
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/api/'),
   new NetworkFirst({
     cacheName: 'api-cache',
     plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 300 })],
@@ -20,7 +20,7 @@ registerRoute(
 
 // Uploaded images: cache-first
 registerRoute(
-  ({ url }) => url.origin === 'http://localhost:3001' && url.pathname.startsWith('/uploads/'),
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/uploads/'),
   new CacheFirst({
     cacheName: 'image-cache',
     plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 })],
