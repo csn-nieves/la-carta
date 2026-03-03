@@ -2,7 +2,7 @@
   "name": "cocktail-app",
   "private": true,
   "scripts": {
-    "build": "npm install --include=dev --prefix client && npm install --include=dev --prefix server && npm run build --prefix client && npx --prefix server prisma generate && npm run build --prefix server",
+    "build": "npm install --include=dev --prefix client && npm install --include=dev --prefix server && npm run build --prefix client && npx --prefix server prisma generate --schema server/prisma/schema.prisma && npm run build --prefix server",
     "start": "node server/dist/index.js"
   }
 }
