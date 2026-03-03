@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  password  String
+  favorites Favorite[]
+  cocktails Cocktail[] @relation("CreatedBy")
+  notes     Note[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Cocktail {
+  id          String       @id @default(cuid())
+  name        String
+  glassware   String
+  directions  String
+  imageUrl    String?
+  ingredients Ingredient[]
+  favorites   Favorite[]
+  createdBy   User         @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Ingredient {
+  id         String   @id @default(cuid())
+  name       String
+  volume     String
+  cocktail   Cocktail @relation(fields: [cocktailId], references: [id], onDelete: Cascade)
+  cocktailId String
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  cocktail   Cocktail @relation(fields: [cocktailId], references: [id], onDelete: Cascade)
+  cocktailId String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, cocktailId])
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  content     String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  createdAt   DateTime @default(now())
+}
