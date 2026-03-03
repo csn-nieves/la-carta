@@ -77,11 +77,20 @@ export default function CreateCocktail() {
         <div>
           <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Photo</label>
           <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-6 text-center cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
+            onClick={() => !imagePreview && fileInputRef.current?.click()}
+            className={`border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl text-center transition-colors ${imagePreview ? '' : 'p-6 cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500'}`}
           >
             {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+              <div className="relative">
+                <img src={imagePreview} alt="Preview" className="w-full aspect-square object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setImagePreview(null); setImageFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white border-none cursor-pointer text-sm flex items-center justify-center hover:bg-black/80"
+                >
+                  ✕
+                </button>
+              </div>
             ) : (
               <div className="text-neutral-400">
                 <p className="text-3xl mb-2">📷</p>

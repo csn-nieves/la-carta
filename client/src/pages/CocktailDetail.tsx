@@ -45,7 +45,7 @@ export default function CocktailDetail() {
     <>
     <div className="max-w-2xl mx-auto pb-12">
       {cocktail.imageUrl ? (
-        <div className="rounded-xl overflow-hidden mb-6 aspect-video bg-neutral-100 dark:bg-neutral-800">
+        <div className="max-w-sm mx-auto rounded-xl overflow-hidden mb-6 aspect-square bg-neutral-100 dark:bg-neutral-800">
           <img
             src={cocktail.imageUrl}
             alt={cocktail.name}
@@ -53,7 +53,7 @@ export default function CocktailDetail() {
           />
         </div>
       ) : (
-        <div className="rounded-xl mb-6 aspect-video bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+        <div className="max-w-sm mx-auto rounded-xl mb-6 aspect-square bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
           <span className="text-6xl grayscale">🥃</span>
         </div>
       )}

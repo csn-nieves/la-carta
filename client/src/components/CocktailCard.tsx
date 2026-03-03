@@ -34,7 +34,7 @@ export default function CocktailCard({ cocktail, onFavoriteToggle }: Props) {
       className="block bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden hover:shadow-lg hover:-tranneutral-y-0.5 transition-all duration-200 no-underline text-inherit"
     >
       {cocktail.imageUrl ? (
-        <div className="aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+        <div className="aspect-square bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
           <img
             src={cocktail.imageUrl}
             alt={cocktail.name}
@@ -42,7 +42,7 @@ export default function CocktailCard({ cocktail, onFavoriteToggle }: Props) {
           />
         </div>
       ) : (
-        <div className="aspect-video bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+        <div className="aspect-square bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
           <span className="text-4xl grayscale">🥃</span>
         </div>
       )}
