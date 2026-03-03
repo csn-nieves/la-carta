@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+server/node_modules
+client/node_modules
+
+# Build output
+dist
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Uploaded files
+server/uploads/*
+!server/uploads/.gitkeep
+
+# IDE
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Prisma
+server/prisma/*.db
+server/prisma/*.db-journal

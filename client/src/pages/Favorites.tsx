@@ -1,0 +1,48 @@
+import { useEffect, useState, useCallback } from 'react';
+import api from '../lib/api';
+import type { Cocktail } from '../types';
+import CocktailCard from '../components/CocktailCard';
+
+export default function Favorites() {
+  const [cocktails, setCocktails] = useState<Cocktail[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchFavorites = useCallback(async () => {
+    try {
+      const { data } = await api.get<{ cocktails: Cocktail[] }>('/cocktails/favorites');
+      setCocktails(data.cocktails);
+    } catch (err) {
+      console.error('Failed to fetch favorites', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  return (
+    <div>
+      <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Your Favorites</h1>
+      <p className="text-neutral-500 dark:text-neutral-400 mb-8">Cocktails you've saved</p>
+
+      {loading ? (
+        <div className="text-center py-20 text-neutral-400">Loading...</div>
+      ) : cocktails.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cocktails.map((cocktail) => (
+            <CocktailCard key={cocktail.id} cocktail={cocktail} onFavoriteToggle={fetchFavorites} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20">
+          <p className="text-4xl mb-4">🖤</p>
+          <p className="text-neutral-500 dark:text-neutral-400">
+            No favorites yet. Browse cocktails and tap the heart to save them!
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

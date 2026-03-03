@@ -1,0 +1,55 @@
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export interface Ingredient {
+  id: string;
+  name: string;
+  volume: string;
+}
+
+export interface Cocktail {
+  id: string;
+  name: string;
+  glassware: string;
+  directions: string;
+  imageUrl: string | null;
+  ingredients: Ingredient[];
+  createdBy: { id: string; name: string };
+  createdById: string;
+  isFavorited?: boolean;
+  favoriteCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CocktailsResponse {
+  cocktails: Cocktail[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface IngredientInput {
+  name: string;
+  volume: string;
+}
+
+export interface Note {
+  id: string;
+  content: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  createdAt: string;
+}
+
+export interface NotesResponse {
+  notes: Note[];
+}
