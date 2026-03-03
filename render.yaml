@@ -11,7 +11,7 @@ services:
     plan: starter
     buildCommand: npm run build
     startCommand: npm start
-    preDeployCommand: npx --prefix server prisma migrate deploy
+    preDeployCommand: npx --prefix server prisma migrate deploy --schema server/prisma/schema.prisma
     envVars:
       - key: DATABASE_URL
         fromDatabase:
