@@ -8,7 +8,7 @@ services:
   - type: web
     name: cocktail-app
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm run build
     startCommand: npm start
     preDeployCommand: npx --prefix server prisma migrate deploy
