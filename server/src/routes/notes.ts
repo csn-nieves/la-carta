@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma';
+import webpush from '../lib/webpush';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -38,6 +39,30 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     });
 
     res.status(201).json({ note });
+
+    // Fire-and-forget: send push notifications to all other users
+    const subscriptions = await prisma.pushSubscription.findMany({
+      where: { userId: { not: req.userId! } },
+    });
+
+    const payload = JSON.stringify({
+      title: `New note from ${note.createdBy.name}`,
+      body: note.content.length > 100 ? note.content.slice(0, 100) + '...' : note.content,
+    });
+
+    for (const sub of subscriptions) {
+      webpush
+        .sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          payload,
+        )
+        .catch(async (err) => {
+          if (err.statusCode === 410 || err.statusCode === 404) {
+            await prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+          }
+          console.error('Push send error:', err.statusCode ?? err.message);
+        });
+    }
   } catch (error) {
     console.error('Create note error:', error);
     res.status(500).json({ error: 'Internal server error' });

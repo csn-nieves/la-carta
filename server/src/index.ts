@@ -5,6 +5,7 @@ import path from 'path';
 import authRoutes from './routes/auth';
 import cocktailRoutes from './routes/cocktails';
 import noteRoutes from './routes/notes';
+import pushRoutes from './routes/push';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +20,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/cocktails', cocktailRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/push', pushRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
