@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import api from '../lib/api';
+import { subscribeToPush } from '../lib/pushNotifications';
 import type { User, AuthResponse } from '../types';
 
 interface AuthContextType {
@@ -22,7 +23,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       api.get<{ user: User }>('/auth/me')
-        .then((res) => setUser(res.data.user))
+        .then((res) => {
+          setUser(res.data.user);
+          subscribeToPush().catch(() => {});
+        })
         .catch(() => {
           setToken(null);
           setUser(null);
@@ -39,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
+    subscribeToPush().catch(() => {});
   };
 
   const register = async (email: string, name: string, password: string) => {
@@ -47,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
+    subscribeToPush().catch(() => {});
   };
 
   const logout = () => {
