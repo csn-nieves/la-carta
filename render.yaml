@@ -27,7 +27,7 @@ services:
         sync: false
       - key: VAPID_PRIVATE_KEY
         sync: false
-      - key: VAPID_EMAIL
+      - key: VAPID_SUBJECT
         sync: false
     disk:
       name: uploads
