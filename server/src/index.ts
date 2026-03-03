@@ -1,15 +1,20 @@
 import 'dotenv/config';
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import path from 'path';
 import authRoutes from './routes/auth';
 import cocktailRoutes from './routes/cocktails';
 import noteRoutes from './routes/notes';
 import pushRoutes from './routes/push';
+import { initSocket } from './lib/socket';
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3001;
 const isProd = process.env.NODE_ENV === 'production';
+
+initSocket(httpServer, isProd);
 
 if (!isProd) {
   app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
@@ -41,6 +46,6 @@ if (isProd) {
   });
 }
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

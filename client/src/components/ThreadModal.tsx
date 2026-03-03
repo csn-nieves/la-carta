@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '../lib/api';
+import { getSocket } from '../lib/socket';
 import { useAuth } from '../context/AuthContext';
 import type { NoteWithReplies, NoteWithRepliesResponse, Reply } from '../types';
 
@@ -18,6 +19,7 @@ export default function ThreadModal({ noteId, onClose, onReplyCountChange }: Thr
   const [deleteReplyId, setDeleteReplyId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Fetch thread + socket subscription
   useEffect(() => {
     const fetchThread = async () => {
       try {
@@ -30,7 +32,40 @@ export default function ThreadModal({ noteId, onClose, onReplyCountChange }: Thr
       }
     };
     fetchThread();
-  }, [noteId]);
+
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    socket.emit('join-thread', noteId);
+
+    const handleReplyCreated = (reply: Reply) => {
+      setNote((prev) => {
+        if (!prev) return prev;
+        if (prev.replies.some((r) => r.id === reply.id)) return prev;
+        const updated = { ...prev, replies: [...prev.replies, reply] };
+        onReplyCountChange(noteId, updated.replies.length);
+        return updated;
+      });
+    };
+
+    const handleReplyDeleted = ({ replyId }: { replyId: string }) => {
+      setNote((prev) => {
+        if (!prev) return prev;
+        if (!prev.replies.some((r) => r.id === replyId)) return prev;
+        const updated = { ...prev, replies: prev.replies.filter((r) => r.id !== replyId) };
+        onReplyCountChange(noteId, updated.replies.length);
+        return updated;
+      });
+    };
+
+    socket.on('reply:created', handleReplyCreated);
+    socket.on('reply:deleted', handleReplyDeleted);
+
+    return () => {
+      socket.emit('leave-thread', noteId);
+      socket.off('reply:created', handleReplyCreated);
+      socket.off('reply:deleted', handleReplyDeleted);
+    };
+  }, [noteId, onReplyCountChange]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,15 +77,7 @@ export default function ThreadModal({ noteId, onClose, onReplyCountChange }: Thr
 
     setSubmitting(true);
     try {
-      const { data } = await api.post<{ reply: Reply }>(`/notes/${noteId}/replies`, {
-        content: content.trim(),
-      });
-      setNote((prev) => {
-        if (!prev) return prev;
-        const updated = { ...prev, replies: [...prev.replies, data.reply] };
-        onReplyCountChange(noteId, updated.replies.length);
-        return updated;
-      });
+      await api.post(`/notes/${noteId}/replies`, { content: content.trim() });
       setContent('');
     } catch (err) {
       console.error('Failed to create reply', err);
@@ -63,15 +90,6 @@ export default function ThreadModal({ noteId, onClose, onReplyCountChange }: Thr
     if (!deleteReplyId) return;
     try {
       await api.delete(`/notes/${noteId}/replies/${deleteReplyId}`);
-      setNote((prev) => {
-        if (!prev) return prev;
-        const updated = {
-          ...prev,
-          replies: prev.replies.filter((r) => r.id !== deleteReplyId),
-        };
-        onReplyCountChange(noteId, updated.replies.length);
-        return updated;
-      });
     } catch (err) {
       console.error('Failed to delete reply', err);
     } finally {

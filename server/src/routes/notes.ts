@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma';
 import webpush from '../lib/webpush';
+import { getIO } from '../lib/socket';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -155,6 +156,9 @@ router.post('/:noteId/replies', authenticate, async (req: AuthRequest, res: Resp
 
     res.status(201).json({ reply });
 
+    // Broadcast to thread viewers
+    getIO().to(`thread:${noteId}`).emit('reply:created', reply);
+
     // Fire-and-forget: notify thread participants (note author + other repliers)
     const participantIds = await prisma.reply.findMany({
       where: { noteId },
@@ -215,6 +219,7 @@ router.delete('/:noteId/replies/:replyId', authenticate, async (req: AuthRequest
     }
 
     await prisma.reply.delete({ where: { id: replyId } });
+    getIO().to(`thread:${reply.noteId}`).emit('reply:deleted', { replyId, noteId: reply.noteId });
     res.json({ message: 'Reply deleted' });
   } catch (error) {
     console.error('Delete reply error:', error);
