@@ -43,13 +43,13 @@ export default function IngredientInputList({ ingredients, onChange }: Props) {
       {ingredients.map((ing, i) => {
         const { qty, unit } = parseVolume(ing.volume);
         return (
-          <div key={i} className="flex gap-2 items-start">
+          <div key={i} className="flex flex-wrap gap-2 items-start">
             <input
               type="text"
               placeholder="e.g. Bourbon"
               value={ing.name}
               onChange={(e) => update(i, 'name', e.target.value)}
-              className={`flex-1 ${inputClass}`}
+              className={`w-full sm:flex-1 ${inputClass}`}
             />
             <select
               value={qty}
