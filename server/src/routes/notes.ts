@@ -72,7 +72,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
 // DELETE /api/notes/:id — delete note (author only)
 router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const note = await prisma.note.findUnique({ where: { id: req.params.id } });
+    const { id } = req.params as { id: string };
+    const note = await prisma.note.findUnique({ where: { id } });
 
     if (!note) {
       res.status(404).json({ error: 'Note not found' });
@@ -84,7 +85,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    await prisma.note.delete({ where: { id: req.params.id } });
+    await prisma.note.delete({ where: { id } });
     res.json({ message: 'Note deleted' });
   } catch (error) {
     console.error('Delete note error:', error);
