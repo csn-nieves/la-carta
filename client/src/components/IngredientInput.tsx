@@ -1,12 +1,12 @@
 import type { IngredientInput as IngredientType } from '../types';
 
-const UNITS = ['oz', 'dashes', 'drops', 'spritz'] as const;
+const UNITS = ['oz', 'dashes', 'drops', 'spritz', 'fill'] as const;
 const QTYS = Array.from({ length: 16 }, (_, i) => ((i + 1) * 0.25).toString());
 
 function parseVolume(volume: string): { qty: string; unit: string } {
   const match = volume.match(/^([\d.\/]*)\s*(.*)$/);
-  if (!match) return { qty: '', unit: UNITS[0] };
-  const unit = UNITS.find((u) => u === match[2].trim().toLowerCase()) ?? UNITS[0];
+  if (!match) return { qty: '', unit: '' };
+  const unit = UNITS.find((u) => u === match[2].trim().toLowerCase()) ?? '';
   return { qty: match[1], unit };
 }
 
@@ -23,7 +23,8 @@ export default function IngredientInputList({ ingredients, onChange }: Props) {
   };
 
   const updateVolume = (index: number, qty: string, unit: string) => {
-    update(index, 'volume', qty ? `${qty} ${unit}` : '');
+    const parts = [qty, unit].filter(Boolean);
+    update(index, 'volume', parts.join(' '));
   };
 
   const add = () => onChange([...ingredients, { name: '', volume: '' }]);
@@ -66,6 +67,7 @@ export default function IngredientInputList({ ingredients, onChange }: Props) {
               onChange={(e) => updateVolume(i, qty, e.target.value)}
               className={`w-24 ${inputClass}`}
             >
+              <option value="">Unit</option>
               {UNITS.map((u) => (
                 <option key={u} value={u}>{u}</option>
               ))}
