@@ -8,7 +8,7 @@ import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 const router = Router();
 
 // Configure multer for image uploads
-const uploadsDir = path.join(__dirname, '../../uploads');
+const uploadsDir = process.env.UPLOADS_PATH || path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }

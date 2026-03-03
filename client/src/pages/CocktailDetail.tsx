@@ -47,7 +47,7 @@ export default function CocktailDetail() {
       {cocktail.imageUrl ? (
         <div className="rounded-xl overflow-hidden mb-6 aspect-video bg-neutral-100 dark:bg-neutral-800">
           <img
-            src={`http://localhost:3001${cocktail.imageUrl}`}
+            src={cocktail.imageUrl}
             alt={cocktail.name}
             className="w-full h-full object-cover"
           />

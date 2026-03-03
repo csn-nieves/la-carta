@@ -1,0 +1,8 @@
+{
+  "name": "cocktail-app",
+  "private": true,
+  "scripts": {
+    "build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client && npx --prefix server prisma generate && npm run build --prefix server",
+    "start": "node server/dist/index.js"
+  }
+}

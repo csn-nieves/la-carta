@@ -27,7 +27,7 @@ export default function EditCocktail() {
         setGlassware(data.glassware);
         setDirections(data.directions);
         setIngredients(data.ingredients.map((i) => ({ name: i.name, volume: i.volume })));
-        if (data.imageUrl) setImagePreview(`http://localhost:3001${data.imageUrl}`);
+        if (data.imageUrl) setImagePreview(data.imageUrl);
       })
       .catch(() => navigate('/'))
       .finally(() => setFetching(false));
