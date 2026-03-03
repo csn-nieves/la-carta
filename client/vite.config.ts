@@ -14,9 +14,9 @@ export default defineConfig({
       filename: 'sw.ts',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
-        name: 'Mixology — Cocktail Recipes',
-        short_name: 'Mixology',
-        description: 'Save and discover cocktail recipes',
+        name: 'La Carta — Cocktail Recipes',
+        short_name: 'La Carta',
+        description: 'Save Forno Cocktails',
         theme_color: '#d97706',
         background_color: '#0f172a',
         display: 'standalone',
@@ -28,8 +28,8 @@ export default defineConfig({
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
         screenshots: [
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', form_factor: 'wide', label: 'Mixology App' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', form_factor: 'narrow', label: 'Mixology App' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', form_factor: 'wide', label: 'La Carta App' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', form_factor: 'narrow', label: 'La Carta App' },
         ],
       },
     }),

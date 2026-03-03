@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import ThreadModal from '../components/ThreadModal';
 import type { Note, NotesResponse } from '../types';
 
 export default function Notes() {
@@ -10,6 +11,7 @@ export default function Notes() {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
+  const [threadNoteId, setThreadNoteId] = useState<string | null>(null);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -64,6 +66,14 @@ export default function Notes() {
     });
   };
 
+  const handleReplyCountChange = useCallback((noteId: string, count: number) => {
+    setNotes((prev) =>
+      prev.map((n) =>
+        n.id === noteId ? { ...n, _count: { replies: count } } : n,
+      ),
+    );
+  }, []);
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Note Log</h1>
@@ -112,14 +122,24 @@ export default function Notes() {
                 <span className="text-sm text-neutral-500 dark:text-neutral-400">
                   {note.createdBy.name} · {formatDate(note.createdAt)}
                 </span>
-                {user?.id === note.createdBy.id && (
+                <div className="flex items-center gap-3">
                   <button
-                    onClick={() => setDeleteNoteId(note.id)}
-                    className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 bg-transparent border-none cursor-pointer"
+                    onClick={() => setThreadNoteId(note.id)}
+                    className="text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 bg-transparent border-none cursor-pointer"
                   >
-                    Delete
+                    {note._count?.replies
+                      ? `${note._count.replies} ${note._count.replies === 1 ? 'reply' : 'replies'}`
+                      : 'Reply'}
                   </button>
-                )}
+                  {user?.id === note.createdBy.id && (
+                    <button
+                      onClick={() => setDeleteNoteId(note.id)}
+                      className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 bg-transparent border-none cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -137,6 +157,13 @@ export default function Notes() {
             No notes yet. Add one to share with the team!
           </p>
         </div>
+      )}
+      {threadNoteId && (
+        <ThreadModal
+          noteId={threadNoteId}
+          onClose={() => setThreadNoteId(null)}
+          onReplyCountChange={handleReplyCountChange}
+        />
       )}
       {deleteNoteId && (
         <dialog className="modal modal-open">

@@ -15,6 +15,7 @@ model User {
   favorites         Favorite[]
   cocktails         Cocktail[]         @relation("CreatedBy")
   notes             Note[]
+  replies           Reply[]
   pushSubscriptions PushSubscription[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -66,6 +67,17 @@ model Favorite {
 model Note {
   id          String   @id @default(cuid())
   content     String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  replies     Reply[]
+  createdAt   DateTime @default(now())
+}
+
+model Reply {
+  id          String   @id @default(cuid())
+  content     String
+  note        Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  noteId      String
   createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String
   createdAt   DateTime @default(now())

@@ -16,6 +16,7 @@ export default function EditCocktail() {
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', volume: '' }]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [hadImage, setHadImage] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -27,7 +28,10 @@ export default function EditCocktail() {
         setGlassware(data.glassware);
         setDirections(data.directions);
         setIngredients(data.ingredients.map((i) => ({ name: i.name, volume: i.volume })));
-        if (data.imageUrl) setImagePreview(data.imageUrl);
+        if (data.imageUrl) {
+          setImagePreview(data.imageUrl);
+          setHadImage(true);
+        }
       })
       .catch(() => navigate('/'))
       .finally(() => setFetching(false));
@@ -62,6 +66,7 @@ export default function EditCocktail() {
       formData.append('directions', directions);
       formData.append('ingredients', JSON.stringify(validIngredients));
       if (imageFile) formData.append('image', imageFile);
+      if (hadImage && !imagePreview && !imageFile) formData.append('removeImage', 'true');
 
       await api.put(`/cocktails/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },

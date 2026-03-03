@@ -198,14 +198,18 @@ router.put('/:id', authenticate, upload.single('image'), async (req: AuthRequest
       return;
     }
 
-    const { name, glassware, directions, ingredients } = req.body;
+    const { name, glassware, directions, ingredients, removeImage } = req.body;
     const parsedIngredients = ingredients
       ? typeof ingredients === 'string'
         ? JSON.parse(ingredients)
         : ingredients
       : undefined;
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : existing.imageUrl;
+    const imageUrl = req.file
+      ? `/uploads/${req.file.filename}`
+      : removeImage === 'true'
+        ? null
+        : existing.imageUrl;
 
     const cocktail = await prisma.cocktail.update({
       where: { id },

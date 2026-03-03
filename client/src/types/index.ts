@@ -48,8 +48,26 @@ export interface Note {
   createdBy: { id: string; name: string };
   createdById: string;
   createdAt: string;
+  _count?: { replies: number };
 }
 
 export interface NotesResponse {
   notes: Note[];
+}
+
+export interface Reply {
+  id: string;
+  content: string;
+  noteId: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  createdAt: string;
+}
+
+export interface NoteWithReplies extends Note {
+  replies: Reply[];
+}
+
+export interface NoteWithRepliesResponse {
+  note: NoteWithReplies;
 }
