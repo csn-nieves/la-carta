@@ -1,7 +1,10 @@
 import type { IngredientInput as IngredientType } from '../types';
 
 const UNITS = ['oz', 'dashes', 'drops', 'spritz', 'fill'] as const;
-const QTYS = Array.from({ length: 16 }, (_, i) => ((i + 1) * 0.25).toString());
+const QTYS = [
+  ...Array.from({ length: 16 }, (_, i) => ((i + 1) * 0.25).toString()),
+  ...Array.from({ length: 6 }, (_, i) => (i + 5).toString()),
+];
 
 function parseVolume(volume: string): { qty: string; unit: string } {
   const match = volume.match(/^([\d.\/]*)\s*(.*)$/);

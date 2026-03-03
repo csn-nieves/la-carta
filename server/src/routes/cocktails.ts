@@ -36,12 +36,14 @@ const upload = multer({
 // GET /api/cocktails — list all cocktails
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { search, page = '1', limit = '12' } = req.query;
+    const { search, page = '1', limit = '12', sort = 'name' } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
     const where = search
       ? { name: { contains: String(search), mode: 'insensitive' as const } }
       : {};
+
+    const orderBy = sort === 'recent' ? { createdAt: 'desc' as const } : { name: 'asc' as const };
 
     const [cocktails, total] = await Promise.all([
       prisma.cocktail.findMany({
@@ -54,7 +56,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
             ? { favorites: { where: { userId: req.userId }, take: 1 } }
             : {}),
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip,
         take: Number(limit),
       }),

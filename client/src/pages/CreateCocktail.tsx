@@ -64,7 +64,7 @@ export default function CreateCocktail() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-12">
       <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">Create Cocktail</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (

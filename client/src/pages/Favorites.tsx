@@ -23,7 +23,7 @@ export default function Favorites() {
   }, [fetchFavorites]);
 
   return (
-    <div>
+    <div className="pb-12">
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Your Favorites</h1>
       <p className="text-neutral-500 dark:text-neutral-400 mb-8">Cocktails you've saved</p>
 

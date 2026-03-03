@@ -43,7 +43,7 @@ export default function CocktailDetail() {
 
   return (
     <>
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-12">
       {cocktail.imageUrl ? (
         <div className="rounded-xl overflow-hidden mb-6 aspect-video bg-neutral-100 dark:bg-neutral-800">
           <img

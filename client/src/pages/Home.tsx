@@ -6,13 +6,14 @@ import CocktailCard from '../components/CocktailCard';
 export default function Home() {
   const [data, setData] = useState<CocktailsResponse | null>(null);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<'name' | 'recent'>('name');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const fetchCocktails = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(page), limit: '12' });
+      const params = new URLSearchParams({ page: String(page), limit: '12', sort });
       if (search) params.set('search', search);
       const { data } = await api.get<CocktailsResponse>(`/cocktails?${params}`);
       setData(data);
@@ -21,7 +22,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [search, page]);
+  }, [search, sort, page]);
 
   useEffect(() => {
     fetchCocktails();
@@ -32,7 +33,7 @@ export default function Home() {
   }, [search]);
 
   return (
-    <div>
+    <div className="pb-12">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
           Cocktail Recipes
@@ -40,13 +41,23 @@ export default function Home() {
         <p className="text-neutral-500 dark:text-neutral-400 mb-6">
           Discover and save your favorite cocktail recipes
         </p>
-        <input
-          type="text"
-          placeholder="Search cocktails..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 text-sm"
-        />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search cocktails..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 max-w-md px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 text-sm"
+          />
+          <select
+            value={sort}
+            onChange={(e) => { setSort(e.target.value as 'name' | 'recent'); setPage(1); }}
+            className="px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 text-sm"
+          >
+            <option value="name">A–Z</option>
+            <option value="recent">Newest</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
