@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import cocktailRoutes from './routes/cocktails';
 import noteRoutes from './routes/notes';
 import pushRoutes from './routes/push';
+import adminRoutes from './routes/admin';
 import { initSocket } from './lib/socket';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cocktails', cocktailRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });

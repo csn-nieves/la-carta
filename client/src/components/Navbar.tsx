@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -35,6 +35,11 @@ export default function Navbar() {
               <Link to="/notes" className="text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white no-underline">
                 Notes
               </Link>
+              {isAdmin && (
+                <Link to="/admin/users" className="text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white no-underline">
+                  Admin
+                </Link>
+              )}
             </>
           )}
 

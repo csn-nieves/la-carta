@@ -5,7 +5,7 @@ import ThreadModal from '../components/ThreadModal';
 import type { Note, NotesResponse } from '../types';
 
 export default function Notes() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState('');
@@ -131,7 +131,7 @@ export default function Notes() {
                       ? `${note._count.replies} ${note._count.replies === 1 ? 'reply' : 'replies'}`
                       : 'Reply'}
                   </button>
-                  {user?.id === note.createdBy.id && (
+                  {(user?.id === note.createdBy.id || isAdmin) && (
                     <button
                       onClick={() => setDeleteNoteId(note.id)}
                       className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 bg-transparent border-none cursor-pointer"

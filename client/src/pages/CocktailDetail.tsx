@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function CocktailDetail() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [cocktail, setCocktail] = useState<Cocktail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +75,7 @@ export default function CocktailDetail() {
               {favorited ? '❤️' : '🤍'}
             </button>
           )}
-          {isOwner && (
+          {(isOwner || isAdmin) && (
             <>
               <Link
                 to={`/cocktails/${cocktail.id}/edit`}

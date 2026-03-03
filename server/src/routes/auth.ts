@@ -6,8 +6,8 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-function generateToken(userId: string): string {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+function generateToken(userId: string, isAdmin: boolean): string {
+  return jwt.sign({ userId, isAdmin }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 }
 
 router.post('/register', async (req: Request, res: Response) => {
@@ -30,10 +30,10 @@ router.post('/register', async (req: Request, res: Response) => {
       data: { email, name, password: hashed },
     });
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.isAdmin);
     res.status(201).json({
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin },
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -62,10 +62,10 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.isAdmin);
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin },
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -77,7 +77,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, isAdmin: true },
     });
 
     if (!user) {

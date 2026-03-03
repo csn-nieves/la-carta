@@ -84,7 +84,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (note.createdById !== req.userId) {
+    if (note.createdById !== req.userId && !req.isAdmin) {
       res.status(403).json({ error: 'Not authorized' });
       return;
     }
@@ -213,7 +213,7 @@ router.delete('/:noteId/replies/:replyId', authenticate, async (req: AuthRequest
       return;
     }
 
-    if (reply.createdById !== req.userId) {
+    if (reply.createdById !== req.userId && !req.isAdmin) {
       res.status(403).json({ error: 'Not authorized' });
       return;
     }

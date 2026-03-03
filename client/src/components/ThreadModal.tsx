@@ -11,7 +11,7 @@ interface ThreadModalProps {
 }
 
 export default function ThreadModal({ noteId, onClose, onReplyCountChange }: ThreadModalProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [note, setNote] = useState<NoteWithReplies | null>(null);
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState('');
@@ -150,7 +150,7 @@ export default function ThreadModal({ noteId, onClose, onReplyCountChange }: Thr
                         <time className="text-xs opacity-50 ml-1">{formatDate(reply.createdAt)}</time>
                       </div>
                       <div className="chat-bubble">{reply.content}</div>
-                      {isCurrentUser && (
+                      {(isCurrentUser || isAdmin) && (
                         <div className="chat-footer">
                           <button
                             onClick={() => setDeleteReplyId(reply.id)}

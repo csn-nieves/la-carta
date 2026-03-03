@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,6 +12,7 @@ import CreateCocktail from './pages/CreateCocktail';
 import EditCocktail from './pages/EditCocktail';
 import Favorites from './pages/Favorites';
 import Notes from './pages/Notes';
+import AdminUsers from './pages/AdminUsers';
 
 export default function App() {
   return (
@@ -53,6 +55,14 @@ export default function App() {
                   <ProtectedRoute>
                     <Notes />
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminRoute>
+                    <AdminUsers />
+                  </AdminRoute>
                 }
               />
             </Route>

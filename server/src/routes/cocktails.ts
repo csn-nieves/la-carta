@@ -193,7 +193,7 @@ router.put('/:id', authenticate, upload.single('image'), async (req: AuthRequest
       res.status(404).json({ error: 'Cocktail not found' });
       return;
     }
-    if (existing.createdById !== req.userId) {
+    if (existing.createdById !== req.userId && !req.isAdmin) {
       res.status(403).json({ error: 'Not authorized to edit this cocktail' });
       return;
     }
@@ -250,7 +250,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'Cocktail not found' });
       return;
     }
-    if (existing.createdById !== req.userId) {
+    if (existing.createdById !== req.userId && !req.isAdmin) {
       res.status(403).json({ error: 'Not authorized to delete this cocktail' });
       return;
     }
