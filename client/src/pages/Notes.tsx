@@ -131,7 +131,7 @@ export default function Notes() {
           onChange={(e) => {
             setContent(e.target.value);
             e.target.style.height = 'auto';
-            e.target.style.height = e.target.scrollHeight + 'px';
+            e.target.style.height = Math.min(e.target.scrollHeight, 5 * 20) + 'px';
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -141,7 +141,8 @@ export default function Notes() {
           }}
           placeholder="Add a note..."
           rows={1}
-          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-hidden text-sm"
+          style={{ maxHeight: '100px' }}
+          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-y-auto text-sm"
         />
         <button
           type="submit"
