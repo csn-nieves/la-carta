@@ -1,19 +1,18 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import ThreadModal from '../components/ThreadModal';
 import type { Note, NotesResponse } from '../types';
 
 export default function Notes() {
   const { user, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState((location.state as { prefill?: string })?.prefill ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
-  const [threadNoteId, setThreadNoteId] = useState<string | null>(null);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -68,14 +67,6 @@ export default function Notes() {
     });
   };
 
-  const handleReplyCountChange = useCallback((noteId: string, count: number) => {
-    setNotes((prev) =>
-      prev.map((n) =>
-        n.id === noteId ? { ...n, _count: { replies: count } } : n,
-      ),
-    );
-  }, []);
-
   return (
     <div>
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Note Log</h1>
@@ -117,7 +108,8 @@ export default function Notes() {
           {notes.map((note) => (
             <div
               key={note.id}
-              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+              onClick={() => navigate(`/notes/${note.id}`)}
+              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
             >
               <p className="text-neutral-900 dark:text-neutral-100 mb-2">{note.content}</p>
               <div className="flex items-center justify-between">
@@ -125,17 +117,14 @@ export default function Notes() {
                   {note.createdBy.name} · {formatDate(note.createdAt)}
                 </span>
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setThreadNoteId(note.id)}
-                    className="text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 bg-transparent border-none cursor-pointer"
-                  >
-                    {note._count?.replies
-                      ? `${note._count.replies} ${note._count.replies === 1 ? 'reply' : 'replies'}`
-                      : 'Reply'}
-                  </button>
+                  {note._count?.replies ? (
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                      {note._count.replies} {note._count.replies === 1 ? 'reply' : 'replies'}
+                    </span>
+                  ) : null}
                   {(user?.id === note.createdBy.id || isAdmin) && (
                     <button
-                      onClick={() => setDeleteNoteId(note.id)}
+                      onClick={(e) => { e.stopPropagation(); setDeleteNoteId(note.id); }}
                       className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 bg-transparent border-none cursor-pointer"
                     >
                       Delete
@@ -159,13 +148,6 @@ export default function Notes() {
             No notes yet. Add one to share with the team!
           </p>
         </div>
-      )}
-      {threadNoteId && (
-        <ThreadModal
-          noteId={threadNoteId}
-          onClose={() => setThreadNoteId(null)}
-          onReplyCountChange={handleReplyCountChange}
-        />
       )}
       {deleteNoteId && (
         <dialog className="modal modal-open">

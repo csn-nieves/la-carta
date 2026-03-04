@@ -16,6 +16,7 @@ import AdminUsers from './pages/AdminUsers';
 import Tasks from './pages/Tasks';
 import Stock from './pages/Stock';
 import StockList from './pages/StockList';
+import NoteDetail from './pages/NoteDetail';
 
 export default function App() {
   return (
@@ -57,6 +58,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Notes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notes/:id"
+                element={
+                  <ProtectedRoute>
+                    <NoteDetail />
                   </ProtectedRoute>
                 }
               />
