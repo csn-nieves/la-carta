@@ -111,7 +111,7 @@ export default function Notes() {
               onClick={() => navigate(`/notes/${note.id}`)}
               className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
             >
-              <p className="text-neutral-900 dark:text-neutral-100 mb-2">{note.content}</p>
+              <p className="text-neutral-900 dark:text-neutral-100 mb-2 whitespace-pre-line">{note.content}</p>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-neutral-500 dark:text-neutral-400">
                   {note.createdBy.name} · {formatDate(note.createdAt)}

@@ -154,7 +154,7 @@ export default function NoteDetail() {
         <>
           {/* Original note */}
           <div className="p-4 rounded-lg bg-neutral-100 dark:bg-neutral-800 mb-4">
-            <p className="text-neutral-900 dark:text-neutral-100">{note.content}</p>
+            <p className="text-neutral-900 dark:text-neutral-100 whitespace-pre-line">{note.content}</p>
             <span className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 block">
               {note.createdBy.name} · {formatDate(note.createdAt)}
             </span>
