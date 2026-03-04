@@ -2,20 +2,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function MobileDock() {
-  const { user, isAdmin, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const handleProfile = () => {
-    if (user) {
-      logout();
-      navigate('/');
-    } else {
-      navigate('/login');
-    }
-  };
 
   return (
     <div className="dock md:hidden">
@@ -58,24 +49,16 @@ export default function MobileDock() {
         </button>
       )}
 
-      {user && isAdmin && (
-        <button className={isActive('/admin/users') ? 'dock-active' : ''} onClick={() => navigate('/admin/users')}>
+      {user && (
+        <button className={isActive('/tasks') ? 'dock-active' : ''} onClick={() => navigate('/tasks')}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 15c-3.87 0-7 1.79-7 4v1h14v-1c0-2.21-3.13-4-7-4z" />
-            <circle cx="12" cy="8" r="4" />
-            <path d="M22 12h-4m2-2v4" />
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
           </svg>
-          <span className="dock-label">Admin</span>
+          <span className="dock-label">Tasks</span>
         </button>
       )}
 
-      <button onClick={handleProfile}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-        <span className="dock-label">{user ? 'Logout' : 'Login'}</span>
-      </button>
     </div>
   );
 }

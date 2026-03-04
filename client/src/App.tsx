@@ -13,6 +13,9 @@ import EditCocktail from './pages/EditCocktail';
 import Favorites from './pages/Favorites';
 import Notes from './pages/Notes';
 import AdminUsers from './pages/AdminUsers';
+import Tasks from './pages/Tasks';
+import Stock from './pages/Stock';
+import StockList from './pages/StockList';
 
 export default function App() {
   return (
@@ -54,6 +57,30 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Notes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute>
+                    <Tasks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/stock"
+                element={
+                  <ProtectedRoute>
+                    <Stock />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/stock/list"
+                element={
+                  <ProtectedRoute>
+                    <StockList />
                   </ProtectedRoute>
                 }
               />

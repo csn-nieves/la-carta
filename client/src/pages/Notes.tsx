@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import ThreadModal from '../components/ThreadModal';
@@ -6,9 +7,10 @@ import type { Note, NotesResponse } from '../types';
 
 export default function Notes() {
   const { user, isAdmin } = useAuth();
+  const location = useLocation();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState((location.state as { prefill?: string })?.prefill ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
   const [threadNoteId, setThreadNoteId] = useState<string | null>(null);
@@ -96,8 +98,8 @@ export default function Notes() {
             }
           }}
           placeholder="Add a note..."
-          rows={1}
-          className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-hidden"
+          rows={3}
+          className="flex-1 px-5 py-4 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-hidden"
         />
         <button
           type="submit"
