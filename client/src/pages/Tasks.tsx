@@ -16,7 +16,8 @@ export default function Tasks() {
           <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Stock</span>
         </button>
 
-        <button className="flex flex-col items-center gap-3 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
+        <button disabled className="relative flex flex-col items-center gap-3 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 opacity-50 cursor-not-allowed transition-colors">
+          <span className="absolute top-2 right-2 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded">Coming soon</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-700 dark:text-neutral-300">
             <path d="M9 11l3 3L22 4" />
             <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
