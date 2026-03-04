@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,7 @@ export default function Notes() {
   const [content, setContent] = useState((location.state as { prefill?: string })?.prefill ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -28,6 +29,14 @@ export default function Notes() {
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el && content) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 5 * 20) + 'px';
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +136,7 @@ export default function Notes() {
 
       <form onSubmit={handleSubmit} className="flex items-end gap-2 pt-4 pb-6 border-t border-neutral-200 dark:border-neutral-700">
         <textarea
+          ref={textareaRef}
           value={content}
           onChange={(e) => {
             setContent(e.target.value);
