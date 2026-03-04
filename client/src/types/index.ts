@@ -72,3 +72,22 @@ export interface NoteWithReplies extends Note {
 export interface NoteWithRepliesResponse {
   note: NoteWithReplies;
 }
+
+export interface StockItem {
+  name: string;
+  count: number;
+}
+
+export interface StockCategory {
+  label: string;
+  items: StockItem[];
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  isAdmin: boolean;
+  createdAt: string;
+  _count: { cocktails: number; notes: number };
+}

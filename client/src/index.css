@@ -24,3 +24,137 @@ body {
   background-color: #e5e5e5;
 }
 
+@utility input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-neutral-300);
+  background-color: white;
+  color: var(--color-neutral-900);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-neutral-400);
+  }
+}
+
+:where(.dark) .input-field {
+  border-color: var(--color-neutral-700);
+  background-color: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+  &:focus {
+    box-shadow: 0 0 0 2px var(--color-neutral-500);
+  }
+}
+
+@utility btn-primary {
+  width: 100%;
+  padding: 0.75rem 0;
+  background-color: black;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--color-neutral-800);
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+:where(.dark) .btn-primary {
+  background-color: white;
+  color: black;
+  &:hover {
+    background-color: var(--color-neutral-200);
+  }
+}
+
+@utility btn-action {
+  padding: 0.5rem 1rem;
+  background-color: black;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--color-neutral-800);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+:where(.dark) .btn-action {
+  background-color: white;
+  color: black;
+  &:hover {
+    background-color: var(--color-neutral-200);
+  }
+}
+
+@utility form-label {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-neutral-700);
+}
+
+:where(.dark) .form-label {
+  color: var(--color-neutral-300);
+}
+
+@utility alert-error {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+:where(.dark) .alert-error {
+  background-color: var(--color-neutral-800);
+  color: var(--color-neutral-300);
+}
+
+@utility textarea-chat {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-neutral-300);
+  background-color: white;
+  color: var(--color-neutral-900);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  resize: none;
+  overflow-y: auto;
+  &::placeholder {
+    color: var(--color-neutral-400);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-neutral-400);
+  }
+}
+
+:where(.dark) .textarea-chat {
+  border-color: var(--color-neutral-700);
+  background-color: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+  &::placeholder {
+    color: var(--color-neutral-500);
+  }
+  &:focus {
+    box-shadow: 0 0 0 2px var(--color-neutral-500);
+  }
+}
+

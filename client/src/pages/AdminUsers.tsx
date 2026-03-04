@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-
-interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  isAdmin: boolean;
-  createdAt: string;
-  _count: { cocktails: number; notes: number };
-}
+import { formatDateShort } from '../lib/utils';
+import Loading from '../components/Loading';
+import ConfirmModal from '../components/ConfirmModal';
+import type { AdminUser } from '../types';
 
 export default function AdminUsers() {
   const { user } = useAuth();
@@ -36,15 +31,7 @@ export default function AdminUsers() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  if (loading) return <div className="text-center py-20 text-neutral-400">Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <div>
@@ -72,7 +59,7 @@ export default function AdminUsers() {
               </div>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 truncate">{u.email}</p>
               <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
-                Joined {formatDate(u.createdAt)} · {u._count.cocktails} cocktails · {u._count.notes} notes
+                Joined {formatDateShort(u.createdAt)} · {u._count.cocktails} cocktails · {u._count.notes} notes
               </p>
             </div>
             {u.id !== user?.id && (
@@ -88,29 +75,12 @@ export default function AdminUsers() {
       </div>
 
       {deleteUserId && (
-        <dialog className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg">
-              Are you sure you wish to delete this user?
-            </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 mt-2">
-              This will permanently remove the user and all their content.
-            </p>
-            <div className="modal-action">
-              <button className="btn" onClick={() => setDeleteUserId(null)}>Cancel</button>
-              <button
-                className="btn text-white border-none"
-                style={{ backgroundColor: '#a28847' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#8a7339')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#a28847')}
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          <div className="modal-backdrop" onClick={() => setDeleteUserId(null)} />
-        </dialog>
+        <ConfirmModal
+          message="Are you sure you wish to delete this user?"
+          description="This will permanently remove the user and all their content."
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteUserId(null)}
+        />
       )}
     </div>
   );

@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
 import type { CocktailsResponse } from '../types';
 import CocktailCard from '../components/CocktailCard';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
 
 export default function Home() {
   const [data, setData] = useState<CocktailsResponse | null>(null);
@@ -61,7 +63,7 @@ export default function Home() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-neutral-400">Loading...</div>
+        <Loading />
       ) : data && data.cocktails.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,12 +89,10 @@ export default function Home() {
           )}
         </>
       ) : (
-        <div className="text-center py-20">
-          <p className="text-4xl mb-4">🍹</p>
-          <p className="text-neutral-500 dark:text-neutral-400">
-            {search ? 'No cocktails match your search' : 'No cocktails yet. Be the first to create one!'}
-          </p>
-        </div>
+        <EmptyState
+          icon="🍹"
+          message={search ? 'No cocktails match your search' : 'No cocktails yet. Be the first to create one!'}
+        />
       )}
     </div>
   );
