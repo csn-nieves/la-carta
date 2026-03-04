@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-black dark:text-white no-underline">
           La Carta
         </Link>
