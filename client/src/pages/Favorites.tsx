@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
 import type { Cocktail } from '../types';
 import CocktailCard from '../components/CocktailCard';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
 
 export default function Favorites() {
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
@@ -28,7 +30,7 @@ export default function Favorites() {
       <p className="text-neutral-500 dark:text-neutral-400 mb-8">Cocktails you've saved</p>
 
       {loading ? (
-        <div className="text-center py-20 text-neutral-400">Loading...</div>
+        <Loading />
       ) : cocktails.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cocktails.map((cocktail) => (
@@ -36,12 +38,10 @@ export default function Favorites() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20">
-          <p className="text-4xl mb-4">🖤</p>
-          <p className="text-neutral-500 dark:text-neutral-400">
-            No favorites yet. Browse cocktails and tap the heart to save them!
-          </p>
-        </div>
+        <EmptyState
+          icon="🖤"
+          message="No favorites yet. Browse cocktails and tap the heart to save them!"
+        />
       )}
     </div>
   );

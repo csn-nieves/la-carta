@@ -1,13 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../lib/api';
 import { getSocket } from '../lib/socket';
 import { useAuth } from '../context/AuthContext';
+import { formatDate, getColorForUser } from '../lib/utils';
+import { TEXTAREA_MAX_HEIGHT } from '../constants';
+import Loading from '../components/Loading';
+import BackButton from '../components/BackButton';
+import ConfirmModal from '../components/ConfirmModal';
 import type { NoteWithReplies, NoteWithRepliesResponse, Reply } from '../types';
 
 export default function NoteDetail() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const [note, setNote] = useState<NoteWithReplies | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,31 +98,6 @@ export default function NoteDetail() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  };
-
-  const nameColors = [
-    { bg: 'bg-orange-400', text: 'text-orange-300' },
-    { bg: 'bg-teal-400', text: 'text-teal-300' },
-    { bg: 'bg-pink-300', text: 'text-pink-300' },
-    { bg: 'bg-indigo-400', text: 'text-indigo-300' },
-    { bg: 'bg-amber-400', text: 'text-amber-300' },
-    { bg: 'bg-emerald-400', text: 'text-emerald-300' },
-  ];
-
-  const getColorForUser = (userId: string) => {
-    let hash = 0;
-    for (let i = 0; i < userId.length; i++) hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-    return nameColors[Math.abs(hash) % nameColors.length];
-  };
-
   const handleTouchStart = (replyId: string) => {
     longPressTimer.current = setTimeout(() => {
       setDrawerReplyId(replyId);
@@ -136,20 +115,12 @@ export default function NoteDetail() {
     <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 10rem)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => navigate('/notes')}
-          className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-700 dark:text-neutral-300">
-            <path d="M19 12H5" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-        </button>
+        <BackButton to="/notes" />
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Note</h1>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-neutral-400">Loading...</div>
+        <Loading />
       ) : note ? (
         <>
           {/* Original note */}
@@ -233,7 +204,7 @@ export default function NoteDetail() {
               onChange={(e) => {
                 setContent(e.target.value);
                 e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, 5 * 20) + 'px';
+                e.target.style.height = Math.min(e.target.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -244,12 +215,12 @@ export default function NoteDetail() {
               placeholder="Reply..."
               rows={1}
               style={{ maxHeight: '100px' }}
-              className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-y-auto text-sm"
+              className="textarea-chat"
             />
             <button
               type="submit"
               disabled={!content.trim() || submitting}
-              className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer text-sm"
+              className="btn-action"
             >
               Send
             </button>
@@ -294,24 +265,11 @@ export default function NoteDetail() {
 
       {/* Delete reply confirmation */}
       {deleteReplyId && (
-        <dialog className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg">Delete this reply?</h3>
-            <div className="modal-action">
-              <button className="btn" onClick={() => setDeleteReplyId(null)}>Cancel</button>
-              <button
-                className="btn text-white border-none"
-                style={{ backgroundColor: '#a28847' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#8a7339')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#a28847')}
-                onClick={handleDeleteReply}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          <div className="modal-backdrop" onClick={() => setDeleteReplyId(null)} />
-        </dialog>
+        <ConfirmModal
+          message="Delete this reply?"
+          onConfirm={handleDeleteReply}
+          onCancel={() => setDeleteReplyId(null)}
+        />
       )}
     </div>
   );

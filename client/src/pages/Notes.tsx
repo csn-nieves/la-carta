@@ -1,7 +1,11 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../lib/utils';
+import { useAutoGrowTextarea } from '../hooks/useAutoGrowTextarea';
+import Loading from '../components/Loading';
+import ConfirmModal from '../components/ConfirmModal';
 import type { Note, NotesResponse } from '../types';
 
 export default function Notes() {
@@ -13,7 +17,7 @@ export default function Notes() {
   const [content, setContent] = useState((location.state as { prefill?: string })?.prefill ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { ref: textareaRef, onChangeGrow } = useAutoGrowTextarea(content);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -29,14 +33,6 @@ export default function Notes() {
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (el && content) {
-      el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 5 * 20) + 'px';
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,16 +62,6 @@ export default function Notes() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 10rem)' }}>
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Note Log</h1>
@@ -84,7 +70,7 @@ export default function Notes() {
       </p>
 
       {loading ? (
-        <div className="text-center py-20 text-neutral-400">Loading...</div>
+        <Loading />
       ) : notes.length > 0 ? (
         <div className="flex-1 space-y-3 mb-4">
           {notes.map((note) => (
@@ -140,8 +126,7 @@ export default function Notes() {
           value={content}
           onChange={(e) => {
             setContent(e.target.value);
-            e.target.style.height = 'auto';
-            e.target.style.height = Math.min(e.target.scrollHeight, 5 * 20) + 'px';
+            onChangeGrow(e);
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -152,30 +137,23 @@ export default function Notes() {
           placeholder="Add a note..."
           rows={1}
           style={{ maxHeight: '100px' }}
-          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 resize-none overflow-y-auto text-sm"
+          className="textarea-chat"
         />
         <button
           type="submit"
           disabled={!content.trim() || submitting}
-          className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer text-sm"
+          className="btn-action"
         >
           Add
         </button>
       </form>
 
       {deleteNoteId && (
-        <dialog className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg">
-              Are you sure you wish to delete this note?
-            </h3>
-            <div className="modal-action">
-              <button className="btn" onClick={() => setDeleteNoteId(null)}>Cancel</button>
-              <button className="btn text-white border-none" style={{ backgroundColor: '#a28847' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#8a7339'} onMouseLeave={e => e.currentTarget.style.backgroundColor = '#a28847'} onClick={handleDelete}>Delete</button>
-            </div>
-          </div>
-          <div className="modal-backdrop" onClick={() => setDeleteNoteId(null)} />
-        </dialog>
+        <ConfirmModal
+          message="Are you sure you wish to delete this note?"
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteNoteId(null)}
+        />
       )}
     </div>
   );

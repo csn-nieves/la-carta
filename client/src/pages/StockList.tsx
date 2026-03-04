@@ -1,16 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-interface StockItem {
-  name: string;
-  count: number;
-}
-
-interface Category {
-  label: string;
-  items: StockItem[];
-}
+import BackButton from '../components/BackButton';
+import type { StockItem, StockCategory } from '../types';
 
 type ItemStatus = 'stocked' | 'out';
 
@@ -174,7 +166,7 @@ export default function StockList() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const categories = (location.state?.categories ?? []) as Category[];
+  const categories = (location.state?.categories ?? []) as StockCategory[];
   const [statuses, setStatuses] = useState<Record<string, ItemStatus | undefined>>({});
 
   const filtered = categories
@@ -207,15 +199,7 @@ export default function StockList() {
   return (
     <div className="pb-12">
       <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => navigate('/tasks/stock')}
-          className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-700 dark:text-neutral-300">
-            <path d="M19 12H5" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-        </button>
+        <BackButton to="/tasks/stock" />
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Complete List</h1>
       </div>
 
