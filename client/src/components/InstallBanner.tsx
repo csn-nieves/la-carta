@@ -17,20 +17,15 @@ function isIosSafari() {
   return /iPad|iPhone|iPod/.test(ua) && /WebKit/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
 }
 
+const shouldShow = !isStandalone() && !localStorage.getItem(DISMISS_KEY);
+
 export default function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showIos, setShowIos] = useState(false);
-  const [dismissed, setDismissed] = useState(true);
+  const [showIos] = useState(() => shouldShow && isIosSafari());
+  const [dismissed, setDismissed] = useState(!shouldShow);
 
   useEffect(() => {
-    if (isStandalone() || localStorage.getItem(DISMISS_KEY)) return;
-
-    setDismissed(false);
-
-    if (isIosSafari()) {
-      setShowIos(true);
-      return;
-    }
+    if (!shouldShow || showIos) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -38,7 +33,7 @@ export default function InstallBanner() {
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  }, [showIos]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -53,7 +48,6 @@ export default function InstallBanner() {
   const handleDismiss = () => {
     setDismissed(true);
     setDeferredPrompt(null);
-    setShowIos(false);
     localStorage.setItem(DISMISS_KEY, '1');
   };
 
