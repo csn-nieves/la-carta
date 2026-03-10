@@ -59,6 +59,7 @@ export interface NotesResponse {
 export interface Reply {
   id: string;
   content: string;
+  imageUrl: string | null;
   noteId: string;
   createdBy: { id: string; name: string };
   createdById: string;

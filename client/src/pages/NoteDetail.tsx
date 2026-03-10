@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../lib/api';
 import { getSocket } from '../lib/socket';
 import { useAuth } from '../context/AuthContext';
+import { useImageUpload } from '../hooks/useImageUpload';
 import { formatDate, getColorForUser } from '../lib/utils';
 import { TEXTAREA_MAX_HEIGHT } from '../constants';
 import Loading from '../components/Loading';
@@ -22,6 +23,7 @@ export default function NoteDetail() {
   const [menuReplyId, setMenuReplyId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const { fileInputRef, imagePreview, imageFile, handleImageChange, clearImage } = useImageUpload();
 
   useEffect(() => {
     if (!id) return;
@@ -74,12 +76,21 @@ export default function NoteDetail() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || submitting) return;
+    if (!content.trim() && !imageFile) return;
+    if (submitting) return;
 
     setSubmitting(true);
     try {
-      await api.post(`/notes/${id}/replies`, { content: content.trim() });
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        if (content.trim()) formData.append('content', content.trim());
+        await api.post(`/notes/${id}/replies`, formData);
+      } else {
+        await api.post(`/notes/${id}/replies`, { content: content.trim() });
+      }
       setContent('');
+      clearImage();
     } catch (err) {
       console.error('Failed to create reply', err);
     } finally {
@@ -138,7 +149,7 @@ export default function NoteDetail() {
           )}
 
           {/* Replies */}
-          <div className="flex-1 space-y-3 mb-4">
+          <div className="flex-1 space-y-3 mb-4 pb-8 md:pb-0">
             {note.replies.map((reply) => {
               const isCurrentUser = user?.id === reply.createdBy.id;
               const canDelete = isCurrentUser || isAdmin;
@@ -157,14 +168,23 @@ export default function NoteDetail() {
                   )}
                   <div className={`relative inline-flex ${!isCurrentUser ? 'ml-8' : ''}`}>
                     <div
-                      className={`${isCurrentUser ? 'bg-[#B8B3E0] dark:bg-[#6E6A9C] text-neutral-900 dark:text-white rounded-2xl rounded-br-md' : 'bg-[#E0E0E0] dark:bg-[#3A3A3E] text-neutral-900 dark:text-neutral-100 rounded-2xl rounded-bl-md'} px-4 py-2.5 max-w-[75vw]`}
+                      className={`${isCurrentUser ? 'bg-[#B8B3E0] dark:bg-[#6E6A9C] text-neutral-900 dark:text-white rounded-2xl rounded-br-md' : 'bg-[#E0E0E0] dark:bg-[#3A3A3E] text-neutral-900 dark:text-neutral-100 rounded-2xl rounded-bl-md'} ${reply.imageUrl && !reply.content ? 'p-1' : 'px-4 py-2.5'} max-w-[75vw] overflow-hidden`}
                       {...(canDelete ? {
                         onTouchStart: () => handleTouchStart(reply.id),
                         onTouchEnd: handleTouchEnd,
                         onTouchMove: handleTouchEnd,
                       } : {})}
                     >
-                      {reply.content}
+                      {reply.imageUrl && (
+                        <img
+                          src={reply.imageUrl}
+                          alt=""
+                          loading="lazy"
+                          className={`max-w-full rounded-xl object-cover ${reply.content ? 'mb-2' : ''}`}
+                          style={{ maxHeight: '300px' }}
+                        />
+                      )}
+                      {reply.content && <span className={reply.imageUrl ? 'px-3 pb-2 block' : ''}>{reply.content}</span>}
                     </div>
                     {canDelete && (
                       <div className={`absolute top-1/2 -translate-y-1/2 ${isCurrentUser ? 'right-full mr-1' : 'left-full ml-1'} hidden md:block`}>
@@ -198,32 +218,64 @@ export default function NoteDetail() {
           </div>
 
           {/* Reply input */}
-          <form onSubmit={handleSubmit} className="flex items-end gap-2 pt-4 pb-6 border-t border-neutral-200 dark:border-neutral-700">
-            <textarea
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-              placeholder="Reply..."
-              rows={1}
-              style={{ maxHeight: '100px' }}
-              className="textarea-chat"
-            />
-            <button
-              type="submit"
-              disabled={!content.trim() || submitting}
-              className="btn-action"
-            >
-              Send
-            </button>
+          <form onSubmit={handleSubmit} className="sticky bottom-16 md:bottom-0 z-10 pt-4 pb-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950">
+            {imagePreview && (
+              <div className="relative inline-block mb-2 ml-10">
+                <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 rounded-full flex items-center justify-center text-xs font-bold border-none cursor-pointer leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <div className="flex items-end gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </button>
+              <textarea
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = Math.min(e.target.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                placeholder="Reply..."
+                rows={1}
+                style={{ maxHeight: '100px' }}
+                className="textarea-chat"
+              />
+              <button
+                type="submit"
+                disabled={!content.trim() && !imageFile}
+                className="btn-action"
+              >
+                Send
+              </button>
+            </div>
           </form>
         </>
       ) : (

@@ -120,7 +120,7 @@ export default function Notes() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex items-end gap-2 pt-4 pb-6 border-t border-neutral-200 dark:border-neutral-700">
+      <form onSubmit={handleSubmit} className="sticky bottom-16 md:bottom-0 z-10 flex items-end gap-2 pt-4 pb-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950">
         <textarea
           ref={textareaRef}
           value={content}

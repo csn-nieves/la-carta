@@ -1,37 +1,10 @@
 import { Router, Response } from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import prisma from '../lib/prisma';
+import { createUpload } from '../lib/upload';
 import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
-
-// Configure multer for image uploads
-const uploadsDir = process.env.UPLOADS_PATH || path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `cocktail-${uniqueSuffix}${ext}`);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (_req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp/;
-    const extValid = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mimeValid = allowed.test(file.mimetype.split('/')[1]);
-    cb(null, extValid && mimeValid);
-  },
-});
+const upload = createUpload('cocktail');
 
 // GET /api/cocktails — list all cocktails
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {

@@ -2,9 +2,11 @@ import { Router, Response } from 'express';
 import prisma from '../lib/prisma';
 import webpush from '../lib/webpush';
 import { getIO } from '../lib/socket';
+import { createUpload } from '../lib/upload';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
+const upload = createUpload('reply');
 
 // GET /api/notes — list all notes newest first
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
@@ -125,13 +127,14 @@ router.get('/:noteId/replies', authenticate, async (req: AuthRequest, res: Respo
 });
 
 // POST /api/notes/:noteId/replies — create a reply
-router.post('/:noteId/replies', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/:noteId/replies', authenticate, upload.single('image'), async (req: AuthRequest, res: Response) => {
   try {
     const { noteId } = req.params as { noteId: string };
     const { content } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    if (!content || !content.trim()) {
-      res.status(400).json({ error: 'Content is required' });
+    if ((!content || !content.trim()) && !imageUrl) {
+      res.status(400).json({ error: 'Content or image is required' });
       return;
     }
 
@@ -147,7 +150,8 @@ router.post('/:noteId/replies', authenticate, async (req: AuthRequest, res: Resp
 
     const reply = await prisma.reply.create({
       data: {
-        content: content.trim(),
+        content: content?.trim() || '',
+        imageUrl,
         noteId,
         createdById: req.userId!,
       },
@@ -177,9 +181,12 @@ router.post('/:noteId/replies', authenticate, async (req: AuthRequest, res: Resp
       });
 
       const replierName = reply.createdBy.name;
+      const body = reply.content
+        ? reply.content.length > 100 ? reply.content.slice(0, 100) + '...' : reply.content
+        : 'Sent a photo';
       const payload = JSON.stringify({
         title: `${replierName} replied to a note`,
-        body: reply.content.length > 100 ? reply.content.slice(0, 100) + '...' : reply.content,
+        body,
       });
 
       for (const sub of subscriptions) {
