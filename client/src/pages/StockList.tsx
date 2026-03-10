@@ -226,19 +226,13 @@ export default function StockList() {
       )}
 
       {filtered.length > 0 && (
-        <div className="h-16" />
-      )}
-
-      {filtered.length > 0 && (
-        <div className="fixed bottom-20 left-0 right-0 px-4 pb-2">
-          <button
-            onClick={handleComplete}
-            disabled={!allMarked}
-            className="w-full py-3 rounded-lg font-semibold bg-black text-white dark:bg-white dark:text-black disabled:opacity-50"
-          >
-            Complete Stock
-          </button>
-        </div>
+        <button
+          onClick={handleComplete}
+          disabled={!allMarked}
+          className="w-full py-3 rounded-lg font-semibold bg-black text-white dark:bg-white dark:text-black disabled:bg-neutral-300 disabled:text-neutral-500 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500"
+        >
+          Complete Stock
+        </button>
       )}
     </div>
   );

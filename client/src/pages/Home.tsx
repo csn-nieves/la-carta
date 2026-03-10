@@ -40,9 +40,6 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
           Cocktail Recipes
         </h1>
-        <p className="text-neutral-500 dark:text-neutral-400 mb-6">
-          Discover and save your favorite cocktail recipes
-        </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -78,8 +75,8 @@ export default function Home() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`px-4 py-2 rounded-lg text-sm border-none cursor-pointer ${p === page
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                     }`}
                 >
                   {p}
