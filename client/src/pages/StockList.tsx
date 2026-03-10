@@ -1,8 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import type { StockItem, StockCategory } from '../types';
+
+const STORAGE_KEY_STATUSES = 'stock-list-statuses';
+const STORAGE_KEY_CATEGORIES = 'stock-list-categories';
 
 type ItemStatus = 'stocked' | 'out';
 
@@ -166,8 +169,35 @@ export default function StockList() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const categories = (location.state?.categories ?? []) as StockCategory[];
-  const [statuses, setStatuses] = useState<Record<string, ItemStatus | undefined>>({});
+
+  // Use categories from location.state if available, otherwise fall back to localStorage
+  const locationCategories = (location.state?.categories ?? null) as StockCategory[] | null;
+  const [categories] = useState<StockCategory[]>(() => {
+    if (locationCategories && locationCategories.length > 0) {
+      localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(locationCategories));
+      return locationCategories;
+    }
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_CATEGORIES);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [statuses, setStatuses] = useState<Record<string, ItemStatus | undefined>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_STATUSES);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Persist statuses to localStorage on change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_STATUSES, JSON.stringify(statuses));
+  }, [statuses]);
 
   const filtered = categories
     .map((cat) => ({
@@ -187,6 +217,10 @@ export default function StockList() {
     const outOfStock = filtered
       .flatMap((cat) => cat.items)
       .filter((item) => statuses[item.name] === 'out');
+
+    localStorage.removeItem(STORAGE_KEY_STATUSES);
+    localStorage.removeItem(STORAGE_KEY_CATEGORIES);
+    localStorage.removeItem('stock-counts');
 
     if (outOfStock.length > 0) {
       const prefill = `${user?.name} completed the stock but some items are out:\n${outOfStock.map((item) => `• ${item.name}`).join('\n')}`;

@@ -1,12 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_STOCK_DATA } from '../constants/stockData';
 import BackButton from '../components/BackButton';
 import type { StockCategory } from '../types';
 
+const STORAGE_KEY = 'stock-counts';
+
 export default function Stock() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<StockCategory[]>(INITIAL_STOCK_DATA);
+  const [categories, setCategories] = useState<StockCategory[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_STOCK_DATA;
+    } catch {
+      return INITIAL_STOCK_DATA;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+  }, [categories]);
 
   function updateCount(catIdx: number, itemIdx: number, delta: number) {
     setCategories((prev) =>
