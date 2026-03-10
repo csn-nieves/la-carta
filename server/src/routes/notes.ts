@@ -7,9 +7,10 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 const upload = createUpload('reply');
+const noteUpload = createUpload('note');
 
 // GET /api/notes — list all notes newest first
-router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticate, async (_req: AuthRequest, res: Response) => {
   try {
     const notes = await prisma.note.findMany({
       orderBy: { createdAt: 'desc' },
@@ -27,18 +28,20 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/notes — create a note
-router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/', authenticate, noteUpload.single('image'), async (req: AuthRequest, res: Response) => {
   try {
-    const { content } = req.body;
+    const { content, imageUrl: bodyImageUrl } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : bodyImageUrl || null;
 
-    if (!content || !content.trim()) {
-      res.status(400).json({ error: 'Content is required' });
+    if ((!content || !content.trim()) && !imageUrl) {
+      res.status(400).json({ error: 'Content or image is required' });
       return;
     }
 
     const note = await prisma.note.create({
       data: {
-        content: content.trim(),
+        content: content?.trim() || '',
+        imageUrl,
         createdById: req.userId!,
       },
       include: { createdBy: { select: { id: true, name: true } } },
@@ -51,9 +54,12 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       where: { userId: { not: req.userId! } },
     });
 
+    const body = note.content
+      ? note.content.length > 100 ? note.content.slice(0, 100) + '...' : note.content
+      : 'Sent a photo';
     const payload = JSON.stringify({
       title: `New note from ${note.createdBy.name}`,
-      body: note.content.length > 100 ? note.content.slice(0, 100) + '...' : note.content,
+      body,
     });
 
     for (const sub of subscriptions) {
@@ -130,8 +136,8 @@ router.get('/:noteId/replies', authenticate, async (req: AuthRequest, res: Respo
 router.post('/:noteId/replies', authenticate, upload.single('image'), async (req: AuthRequest, res: Response) => {
   try {
     const { noteId } = req.params as { noteId: string };
-    const { content } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const { content, imageUrl: bodyImageUrl } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : bodyImageUrl || null;
 
     if ((!content || !content.trim()) && !imageUrl) {
       res.status(400).json({ error: 'Content or image is required' });

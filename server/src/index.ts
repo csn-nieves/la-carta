@@ -8,6 +8,7 @@ import cocktailRoutes from './routes/cocktails';
 import noteRoutes from './routes/notes';
 import pushRoutes from './routes/push';
 import adminRoutes from './routes/admin';
+import giphyRoutes from './routes/giphy';
 import { initSocket } from './lib/socket';
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/cocktails', cocktailRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/giphy', giphyRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });

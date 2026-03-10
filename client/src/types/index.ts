@@ -46,6 +46,7 @@ export interface IngredientInput {
 export interface Note {
   id: string;
   content: string;
+  imageUrl: string | null;
   createdBy: { id: string; name: string };
   createdById: string;
   createdAt: string;
