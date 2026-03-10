@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
-import type { CocktailsResponse } from '../types';
+import type { CocktailsResponse, Tag } from '../types';
 import CocktailCard from '../components/CocktailCard';
 import Loading from '../components/Loading';
 import EmptyState from '../components/EmptyState';
@@ -11,12 +11,21 @@ export default function Home() {
   const [sort, setSort] = useState<'name' | 'recent'>('name');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.get<{ tags: Tag[] }>('/cocktails/tags')
+      .then(({ data }) => setTags(data.tags))
+      .catch((err) => console.error('Failed to fetch tags', err));
+  }, []);
 
   const fetchCocktails = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: '12', sort });
       if (search) params.set('search', search);
+      if (selectedTag) params.set('tag', selectedTag);
       const { data } = await api.get<CocktailsResponse>(`/cocktails?${params}`);
       setData(data);
     } catch (err) {
@@ -24,7 +33,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [search, sort, page]);
+  }, [search, sort, page, selectedTag]);
 
   useEffect(() => {
     fetchCocktails();
@@ -32,7 +41,7 @@ export default function Home() {
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, selectedTag]);
 
   return (
     <div className="pb-12">
@@ -58,6 +67,34 @@ export default function Home() {
           </select>
         </div>
       </div>
+
+      {tags.length > 0 && (
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
+          <button
+            onClick={() => setSelectedTag(null)}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-sm border-none cursor-pointer transition-colors ${
+              !selectedTag
+                ? 'bg-black text-white dark:bg-white dark:text-black'
+                : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+            }`}
+          >
+            All
+          </button>
+          {tags.map((tag) => (
+            <button
+              key={tag.id}
+              onClick={() => setSelectedTag(tag.id)}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-sm border-none cursor-pointer transition-colors ${
+                selectedTag === tag.id
+                  ? 'bg-black text-white dark:bg-white dark:text-black'
+                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+              }`}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {loading ? (
         <Loading />

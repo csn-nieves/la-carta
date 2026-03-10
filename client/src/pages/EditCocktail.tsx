@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { SubmitEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import type { Cocktail, IngredientInput } from '../types';
+import type { Cocktail, IngredientInput, Tag } from '../types';
 import { GLASSWARE_OPTIONS } from '../constants';
 import { extractAxiosError } from '../lib/utils';
 import { useImageUpload } from '../hooks/useImageUpload';
@@ -18,10 +18,22 @@ export default function EditCocktail() {
   const [glassware, setGlassware] = useState('');
   const [directions, setDirections] = useState('');
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ name: '', volume: '' }]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [hadImage, setHadImage] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    api.get<{ tags: Tag[] }>('/cocktails/tags')
+      .then(({ data }) => setTags(data.tags))
+      .catch((err) => console.error('Failed to fetch tags', err));
+  }, []);
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) => prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]);
+  };
 
   useEffect(() => {
     api.get<Cocktail>(`/cocktails/${id}`)
@@ -30,6 +42,7 @@ export default function EditCocktail() {
         setGlassware(data.glassware);
         setDirections(data.directions);
         setIngredients(data.ingredients.map((i) => ({ name: i.name, volume: i.volume })));
+        if (data.tags) setSelectedTagIds(data.tags.map((t) => t.id));
         if (data.imageUrl) {
           setImagePreview(data.imageUrl);
           setHadImage(true);
@@ -57,6 +70,7 @@ export default function EditCocktail() {
       formData.append('glassware', glassware);
       formData.append('directions', directions);
       formData.append('ingredients', JSON.stringify(validIngredients));
+      formData.append('tagIds', JSON.stringify(selectedTagIds));
       if (imageFile) formData.append('image', imageFile);
       if (hadImage && !imagePreview && !imageFile) formData.append('removeImage', 'true');
 
@@ -74,7 +88,7 @@ export default function EditCocktail() {
   if (fetching) return <Loading />;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-14 md:pb-6">
       <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">Edit Cocktail</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
@@ -113,6 +127,27 @@ export default function EditCocktail() {
             ))}
           </select>
         </div>
+
+        {tags.length > 0 && (
+          <div>
+            <label className="form-label mb-1">Tags</label>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={`px-3 py-1.5 rounded-full text-sm border-none cursor-pointer transition-colors ${selectedTagIds.includes(tag.id)
+                      ? 'bg-black text-white dark:bg-white dark:text-black'
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                    }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <IngredientInputList ingredients={ingredients} onChange={setIngredients} />
 

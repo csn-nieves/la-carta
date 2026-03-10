@@ -13,6 +13,7 @@ import EditCocktail from './pages/EditCocktail';
 import Favorites from './pages/Favorites';
 import Notes from './pages/Notes';
 import AdminUsers from './pages/AdminUsers';
+import AdminTags from './pages/AdminTags';
 import Tasks from './pages/Tasks';
 import Stock from './pages/Stock';
 import StockList from './pages/StockList';
@@ -98,6 +99,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <AdminUsers />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/tags"
+                element={
+                  <AdminRoute>
+                    <AdminTags />
                   </AdminRoute>
                 }
               />

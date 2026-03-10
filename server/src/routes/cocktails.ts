@@ -6,15 +6,26 @@ import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 const router = Router();
 const upload = createUpload('cocktail');
 
+// GET /api/cocktails/tags — public tag list
+router.get('/tags', async (_req: AuthRequest, res: Response) => {
+  try {
+    const tags = await prisma.tag.findMany({ orderBy: { name: 'asc' } });
+    res.json({ tags });
+  } catch (error) {
+    console.error('List tags error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/cocktails — list all cocktails
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { search, page = '1', limit = '12', sort = 'name' } = req.query;
+    const { search, page = '1', limit = '12', sort = 'name', tag } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where = search
-      ? { name: { contains: String(search), mode: 'insensitive' as const } }
-      : {};
+    const where: any = {};
+    if (search) where.name = { contains: String(search), mode: 'insensitive' as const };
+    if (tag) where.tags = { some: { id: String(tag) } };
 
     const orderBy = sort === 'recent' ? { createdAt: 'desc' as const } : { name: 'asc' as const };
 
@@ -23,6 +34,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
         where,
         include: {
           ingredients: true,
+          tags: true,
           createdBy: { select: { id: true, name: true } },
           _count: { select: { favorites: true } },
           ...(req.userId
@@ -60,6 +72,7 @@ router.get('/favorites', authenticate, async (req: AuthRequest, res: Response) =
         cocktail: {
           include: {
             ingredients: true,
+            tags: true,
             createdBy: { select: { id: true, name: true } },
             _count: { select: { favorites: true } },
           },
@@ -90,6 +103,7 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
       where: { id },
       include: {
         ingredients: true,
+        tags: true,
         createdBy: { select: { id: true, name: true } },
         _count: { select: { favorites: true } },
         ...(req.userId
@@ -119,7 +133,7 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
 // POST /api/cocktails — create cocktail
 router.post('/', authenticate, upload.single('image'), async (req: AuthRequest, res: Response) => {
   try {
-    const { name, glassware, directions, ingredients } = req.body;
+    const { name, glassware, directions, ingredients, tagIds } = req.body;
 
     if (!name || !glassware || !directions || !ingredients) {
       res.status(400).json({ error: 'Name, glassware, directions, and ingredients are required' });
@@ -127,6 +141,7 @@ router.post('/', authenticate, upload.single('image'), async (req: AuthRequest, 
     }
 
     const parsedIngredients = typeof ingredients === 'string' ? JSON.parse(ingredients) : ingredients;
+    const parsedTagIds: string[] = tagIds ? (typeof tagIds === 'string' ? JSON.parse(tagIds) : tagIds) : [];
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -143,9 +158,13 @@ router.post('/', authenticate, upload.single('image'), async (req: AuthRequest, 
             volume: ing.volume,
           })),
         },
+        ...(parsedTagIds.length > 0 && {
+          tags: { connect: parsedTagIds.map((id: string) => ({ id })) },
+        }),
       },
       include: {
         ingredients: true,
+        tags: true,
         createdBy: { select: { id: true, name: true } },
       },
     });
@@ -171,11 +190,14 @@ router.put('/:id', authenticate, upload.single('image'), async (req: AuthRequest
       return;
     }
 
-    const { name, glassware, directions, ingredients, removeImage } = req.body;
+    const { name, glassware, directions, ingredients, removeImage, tagIds } = req.body;
     const parsedIngredients = ingredients
       ? typeof ingredients === 'string'
         ? JSON.parse(ingredients)
         : ingredients
+      : undefined;
+    const parsedTagIds: string[] | undefined = tagIds !== undefined
+      ? (typeof tagIds === 'string' ? JSON.parse(tagIds) : tagIds)
       : undefined;
 
     const imageUrl = req.file
@@ -200,9 +222,13 @@ router.put('/:id', authenticate, upload.single('image'), async (req: AuthRequest
             })),
           },
         }),
+        ...(parsedTagIds !== undefined && {
+          tags: { set: parsedTagIds.map((id: string) => ({ id })) },
+        }),
       },
       include: {
         ingredients: true,
+        tags: true,
         createdBy: { select: { id: true, name: true } },
       },
     });

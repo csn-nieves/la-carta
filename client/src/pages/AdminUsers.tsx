@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDateShort } from '../lib/utils';
@@ -36,6 +37,12 @@ export default function AdminUsers() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Admin — Users</h1>
+
+      <div className="flex gap-4 mb-6 border-b border-neutral-200 dark:border-neutral-800">
+        <span className="pb-2 text-sm font-medium text-neutral-900 dark:text-neutral-100 border-b-2 border-neutral-900 dark:border-neutral-100">Users</span>
+        <Link to="/admin/tags" className="pb-2 text-sm text-neutral-500 dark:text-neutral-400 no-underline hover:text-neutral-900 dark:hover:text-neutral-100">Tags</Link>
+      </div>
+
       <p className="text-neutral-500 dark:text-neutral-400 mb-8">
         {users.length} {users.length === 1 ? 'user' : 'users'} registered
       </p>

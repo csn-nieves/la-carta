@@ -11,6 +11,15 @@ export interface Ingredient {
   volume: string;
 }
 
+export interface Tag {
+  id: string;
+  name: string;
+}
+
+export interface AdminTag extends Tag {
+  _count: { cocktails: number };
+}
+
 export interface Cocktail {
   id: string;
   name: string;
@@ -18,6 +27,7 @@ export interface Cocktail {
   directions: string;
   imageUrl: string | null;
   ingredients: Ingredient[];
+  tags: Tag[];
   createdBy: { id: string; name: string };
   createdById: string;
   isFavorited?: boolean;

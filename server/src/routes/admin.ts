@@ -52,4 +52,79 @@ router.delete('/users/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /api/admin/tags — list all tags
+router.get('/tags', async (_req: AuthRequest, res: Response) => {
+  try {
+    const tags = await prisma.tag.findMany({
+      include: { _count: { select: { cocktails: true } } },
+      orderBy: { name: 'asc' },
+    });
+    res.json({ tags });
+  } catch (error) {
+    console.error('List tags error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/admin/tags — create tag
+router.post('/tags', async (req: AuthRequest, res: Response) => {
+  try {
+    const { name } = req.body as { name: string };
+    if (!name || !name.trim()) {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+    const tag = await prisma.tag.create({ data: { name: name.trim() } });
+    res.status(201).json(tag);
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      res.status(409).json({ error: 'Tag already exists' });
+      return;
+    }
+    console.error('Create tag error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/admin/tags/:id — rename tag
+router.put('/tags/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { name } = req.body as { name: string };
+    if (!name || !name.trim()) {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+    const tag = await prisma.tag.update({ where: { id }, data: { name: name.trim() } });
+    res.json(tag);
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
+      res.status(404).json({ error: 'Tag not found' });
+      return;
+    }
+    if (error?.code === 'P2002') {
+      res.status(409).json({ error: 'Tag already exists' });
+      return;
+    }
+    console.error('Update tag error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/admin/tags/:id — delete tag
+router.delete('/tags/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.tag.delete({ where: { id } });
+    res.json({ message: 'Tag deleted' });
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
+      res.status(404).json({ error: 'Tag not found' });
+      return;
+    }
+    console.error('Delete tag error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
