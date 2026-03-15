@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 
 const BILLS = [
@@ -11,14 +11,24 @@ const BILLS = [
   { label: 'Singles ($1)', multiplier: 1 },
 ];
 
+interface BarMathFormState {
+  bills: Record<number, string>;
+  change: string;
+  totalSales: string;
+  foodSales: string;
+}
+
 export default function BarMath() {
   const navigate = useNavigate();
-  const [bills, setBills] = useState<Record<number, string>>({
-    100: '', 50: '', 20: '', 10: '', 5: '', 1: '',
-  });
-  const [change, setChange] = useState('10');
-  const [totalSales, setTotalSales] = useState('');
-  const [foodSales, setFoodSales] = useState('');
+  const location = useLocation();
+  const saved = location.state as BarMathFormState | null;
+
+  const [bills, setBills] = useState<Record<number, string>>(
+    saved?.bills ?? { 100: '', 50: '', 20: '', 10: '', 5: '', 1: '' },
+  );
+  const [change, setChange] = useState(saved?.change ?? '10');
+  const [totalSales, setTotalSales] = useState(saved?.totalSales ?? '');
+  const [foodSales, setFoodSales] = useState(saved?.foodSales ?? '');
   const [error, setError] = useState('');
   const [billErrors, setBillErrors] = useState<Record<number, boolean>>({});
 
@@ -30,6 +40,11 @@ export default function BarMath() {
   const canCalculate = totalSales.trim() !== '' && foodSales.trim() !== '' && !hasBillErrors;
 
   const handleCalculate = () => {
+    if (hasBillErrors) {
+      setError('Please fix the bill amounts before calculating.');
+      return;
+    }
+
     const invalidBills = BILLS.filter((b) => {
       const val = parseFloat(bills[b.multiplier]) || 0;
       return val > 0 && val % b.multiplier !== 0;
@@ -52,6 +67,7 @@ export default function BarMath() {
         cashTotal,
         totalSales: parseFloat(totalSales) || 0,
         foodSales: parseFloat(foodSales) || 0,
+        formState: { bills, change, totalSales, foodSales },
       },
     });
   };
@@ -88,7 +104,11 @@ export default function BarMath() {
                         onBlur={() => {
                           const val = parseFloat(bills[bill.multiplier]) || 0;
                           const invalid = val > 0 && val % bill.multiplier !== 0;
-                          setBillErrors((prev) => ({ ...prev, [bill.multiplier]: invalid }));
+                          setBillErrors((prev) => {
+                            const next = { ...prev, [bill.multiplier]: invalid };
+                            if (!Object.values(next).some(Boolean)) setError('');
+                            return next;
+                          });
                         }}
                         placeholder="0"
                         className={`input-field w-full pl-7 ${hasError ? 'border-red-500 dark:border-red-500' : ''}`}
@@ -160,12 +180,12 @@ export default function BarMath() {
           </div>
         </div>
 
-        {error && <div className="alert-error">{error}</div>}
+        {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
 
         <button
           onClick={handleCalculate}
-          disabled={!canCalculate}
-          className="btn-primary w-full"
+          disabled={!canCalculate && !hasBillErrors}
+          className={`btn-primary w-full ${hasBillErrors ? 'border-2 border-red-500' : ''}`}
         >
           Calculate
         </button>

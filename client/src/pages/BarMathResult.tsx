@@ -12,6 +12,12 @@ interface BarMathState {
   cashTotal: number;
   totalSales: number;
   foodSales: number;
+  formState?: {
+    bills: Record<number, string>;
+    change: string;
+    totalSales: string;
+    foodSales: string;
+  };
 }
 
 function fmt(n: number) {
@@ -22,6 +28,8 @@ export default function BarMathResult() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as BarMathState | null;
+
+  const goBack = () => navigate('/tasks/bar-math', { state: state?.formState ?? null });
 
   if (!state) {
     return (
@@ -43,7 +51,15 @@ export default function BarMathResult() {
   return (
     <div className="max-w-2xl mx-auto pb-16 md:pb-6">
       <div className="flex items-center gap-3 mb-6">
-        <BackButton to="/tasks/bar-math" />
+        <button
+          onClick={goBack}
+          className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-700 dark:text-neutral-300">
+            <path d="M19 12H5" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Bar Math</h1>
       </div>
 
