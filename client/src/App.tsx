@@ -18,6 +18,14 @@ import Tasks from './pages/Tasks';
 import Stock from './pages/Stock';
 import StockList from './pages/StockList';
 import NoteDetail from './pages/NoteDetail';
+import Bourbons from './pages/Bourbons';
+import AddBourbon from './pages/AddBourbon';
+import BourbonDetail from './pages/BourbonDetail';
+import Wines from './pages/Wines';
+import AddWine from './pages/AddWine';
+import WineDetail from './pages/WineDetail';
+import BarMath from './pages/BarMath';
+import BarMathResult from './pages/BarMathResult';
 
 export default function App() {
   return (
@@ -91,6 +99,70 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <StockList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/bourbons"
+                element={
+                  <ProtectedRoute>
+                    <Bourbons />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/bourbons/new"
+                element={
+                  <ProtectedRoute>
+                    <AddBourbon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/bourbons/:id"
+                element={
+                  <ProtectedRoute>
+                    <BourbonDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/wines"
+                element={
+                  <ProtectedRoute>
+                    <Wines />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/wines/new"
+                element={
+                  <ProtectedRoute>
+                    <AddWine />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/wines/:id"
+                element={
+                  <ProtectedRoute>
+                    <WineDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/bar-math"
+                element={
+                  <ProtectedRoute>
+                    <BarMath />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/bar-math/result"
+                element={
+                  <ProtectedRoute>
+                    <BarMathResult />
                   </ProtectedRoute>
                 }
               />

@@ -95,6 +95,76 @@ export interface StockCategory {
   items: StockItem[];
 }
 
+export interface BourbonReviewReply {
+  id: string;
+  content: string;
+  ratingId: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  createdAt: string;
+}
+
+export interface BourbonRating {
+  id: string;
+  stars: number;
+  review: string | null;
+  bourbonId: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  replies: BourbonReviewReply[];
+  createdAt: string;
+}
+
+export interface BourbonSummary {
+  id: string;
+  name: string;
+  locationPurchased: string;
+  createdBy: { id: string; name: string };
+  createdAt: string;
+  averageRating: number | null;
+  ratingCount: number;
+}
+
+export interface BourbonDetail extends BourbonSummary {
+  ratings: BourbonRating[];
+  userRating: BourbonRating | null;
+}
+
+export interface WineReviewReply {
+  id: string;
+  content: string;
+  ratingId: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  createdAt: string;
+}
+
+export interface WineRating {
+  id: string;
+  stars: number;
+  review: string | null;
+  wineId: string;
+  createdBy: { id: string; name: string };
+  createdById: string;
+  replies: WineReviewReply[];
+  createdAt: string;
+}
+
+export interface WineSummary {
+  id: string;
+  name: string;
+  locationPurchased: string;
+  createdBy: { id: string; name: string };
+  createdAt: string;
+  averageRating: number | null;
+  ratingCount: number;
+}
+
+export interface WineDetail extends WineSummary {
+  ratings: WineRating[];
+  userRating: WineRating | null;
+}
+
 export interface AdminUser {
   id: string;
   email: string;

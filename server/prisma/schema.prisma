@@ -8,18 +8,24 @@ datasource db {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  name              String
-  password          String
-  isAdmin           Boolean            @default(false)
-  favorites         Favorite[]
-  cocktails         Cocktail[]         @relation("CreatedBy")
-  notes             Note[]
-  replies           Reply[]
-  pushSubscriptions PushSubscription[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id                   String               @id @default(cuid())
+  email                String               @unique
+  name                 String
+  password             String
+  isAdmin              Boolean              @default(false)
+  favorites            Favorite[]
+  cocktails            Cocktail[]           @relation("CreatedBy")
+  notes                Note[]
+  replies              Reply[]
+  pushSubscriptions    PushSubscription[]
+  bourbons             Bourbon[]            @relation("BourbonCreatedBy")
+  bourbonRatings       BourbonRating[]      @relation("BourbonRatingCreatedBy")
+  bourbonReviewReplies BourbonReviewReply[] @relation("BourbonReviewReplyCreatedBy")
+  wines                Wine[]               @relation("WineCreatedBy")
+  wineRatings          WineRating[]         @relation("WineRatingCreatedBy")
+  wineReviewReplies    WineReviewReply[]    @relation("WineReviewReplyCreatedBy")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
 }
 
 model PushSubscription {
@@ -92,4 +98,76 @@ model Reply {
   createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String
   createdAt   DateTime @default(now())
+}
+
+model Bourbon {
+  id                String          @id @default(cuid())
+  name              String
+  locationPurchased String
+  createdBy         User            @relation("BourbonCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById       String
+  ratings           BourbonRating[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model BourbonRating {
+  id          String               @id @default(cuid())
+  stars       Int
+  review      String?
+  bourbon     Bourbon              @relation(fields: [bourbonId], references: [id], onDelete: Cascade)
+  bourbonId   String
+  createdBy   User                 @relation("BourbonRatingCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  replies     BourbonReviewReply[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([bourbonId, createdById])
+}
+
+model BourbonReviewReply {
+  id          String        @id @default(cuid())
+  content     String
+  rating      BourbonRating @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+  ratingId    String
+  createdBy   User          @relation("BourbonReviewReplyCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  createdAt   DateTime      @default(now())
+}
+
+model Wine {
+  id                String       @id @default(cuid())
+  name              String
+  locationPurchased String
+  createdBy         User         @relation("WineCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById       String
+  ratings           WineRating[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model WineRating {
+  id          String            @id @default(cuid())
+  stars       Int
+  review      String?
+  wine        Wine              @relation(fields: [wineId], references: [id], onDelete: Cascade)
+  wineId      String
+  createdBy   User              @relation("WineRatingCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  replies     WineReviewReply[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([wineId, createdById])
+}
+
+model WineReviewReply {
+  id          String     @id @default(cuid())
+  content     String
+  rating      WineRating @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+  ratingId    String
+  createdBy   User       @relation("WineReviewReplyCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  createdAt   DateTime   @default(now())
 }
