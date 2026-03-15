@@ -68,7 +68,7 @@ export default function BarMathResult() {
           <span>Cash Total</span>
           <span>{fmt(cashTotal)}</span>
         </div>
-        {cashTotal > 600 && (() => {
+        {cashTotal !== 600 && (() => {
           const diff = cashTotal - 600;
           return (
             <div className={`mt-2 text-sm font-semibold ${diff > 0 ? 'text-red-500' : 'text-green-500'}`}>
