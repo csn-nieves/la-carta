@@ -25,6 +25,7 @@ export default function Tasks() {
         </button>
       </div>
 
+      {/* Reviews section hidden temporarily
       <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mt-8 mb-3">Reviews</h2>
       <div className="grid grid-cols-2 gap-4">
         <button onClick={() => navigate('/tasks/bourbons')} className="flex flex-col items-center gap-3 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
@@ -43,6 +44,7 @@ export default function Tasks() {
           <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Wine Saturdays</span>
         </button>
       </div>
+      */}
 
       <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mt-8 mb-3">Coming Soon</h2>
       <div className="grid grid-cols-2 gap-4">
