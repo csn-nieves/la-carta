@@ -116,7 +116,7 @@ export default function Notes() {
       {loading ? (
         <Loading />
       ) : notes.length > 0 ? (
-        <div className="flex-1 space-y-3 mb-4">
+        <div className="flex-1 space-y-3 pb-12">
           {notes.map((note) => (
             <div
               key={note.id}
